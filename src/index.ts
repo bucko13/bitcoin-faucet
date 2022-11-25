@@ -60,7 +60,7 @@ const check = async (req: Request, _res: Response) => {
 }
 
 const render = (_req: Request, res: Response, filebasename: string, data: MixedData) => {
-    const filename = `../html/${filebasename.includes('.') ? filebasename : `${filebasename}.html`}`;
+    const filename = path.join(__dirname, `../html`, `${filebasename.includes('.') ? filebasename : `${filebasename}.html`}`);
     if (!fs.existsSync(filename)) {
         res.status(400).send({ message: 'file not found' });
         return;
@@ -79,7 +79,7 @@ const render = (_req: Request, res: Response, filebasename: string, data: MixedD
         return;
     }
     // pass file on
-    res.sendFile(path.join(`${__dirname}/${filename}`));
+    res.sendFile(filename);
 };
 
 const connect = async (req: Request, res: Response) => {
@@ -112,7 +112,7 @@ if (config.faucetPassword) {
 }
 
 const COIN = 100000000;
-const sat2BTC = (sat: number) => Number(sat / COIN).toFixed(8);
+const sat2BTC = (sat: number) => Number(+sat / COIN).toFixed(8);
 const btcString2Sat = (btcString: string) => {
     const comps = btcString.split('.');
     let sats = Number.parseInt(comps[0], 10) * COIN;
@@ -130,6 +130,11 @@ app.use(session({
     saveUninitialized: true,
     resave: true
 }));
+
+app.use((req, _res, next)=> {
+  console.log(`${req.method} ${req.path}`)
+  next()
+})
 
 const get = async (req: Request, res: Response, subpath: string): Promise<Response | void> => {
     if (subpath.includes('..')) return res.status(400).send({ message: 'Invalid request' });

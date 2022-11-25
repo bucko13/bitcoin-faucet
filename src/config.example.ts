@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv'
+dotenv.config()
+
 const BTC = 100000000;
 const mBTC = 100000;
 
